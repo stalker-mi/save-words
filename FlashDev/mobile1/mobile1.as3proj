@@ -6,12 +6,13 @@
     <movie input="" />
     <movie path="bin\mobile1.swf" />
     <movie fps="30" />
-    <movie width="480" />
-    <movie height="762" />
-    <movie version="17" />
+    <movie width="320" />
+    <movie height="480" />
+    <movie version="15" />
     <movie minorVersion="0" />
     <movie platform="AIR Mobile" />
     <movie background="#FFFFFF" />
+    <movie preferredSDK="Flex 4.6.0, AIR 17.0;4.6.0, 17.0;" />
   </output>
   <!-- Other classes to be compiled into your SWF -->
   <classpaths>
@@ -52,8 +53,9 @@
   </includeLibraries>
   <!-- SWC Libraries -->
   <libraryPaths>
-    <element path="libs\away3d-core-fp11_4_1_6.swc" />
+    <element path="libs\feathers.swc" />
     <element path="libs\starling.swc" />
+    <element path="libs\away3d-core-fp11_4_1_6.swc" />
   </libraryPaths>
   <!-- External Libraries -->
   <externalLibraryPaths>
