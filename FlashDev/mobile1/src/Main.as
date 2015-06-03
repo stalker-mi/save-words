@@ -14,26 +14,22 @@ package
 	import away3d.materials.lightpickers.*;
 	import away3d.materials.methods.*;
 	
+	
 	import flash.display.*;
 	import flash.events.*;
 	import flash.text.*;
 
-    [SWF(width="480", height="640", frameRate="30", backgroundColor="#000000")]
+	
+	[Frame(factoryClass = "Preloader")]
+    [SWF(width="480", height="700", frameRate="30", backgroundColor="#000000")]
     public class Main extends Sprite
     {
         
 			// Materials
-		private var cubeMaterial : TextureMaterial;
-
-		// Objects
-		private var cube1 : Mesh;
-		private var cube2 : Mesh;
-		private var cube3 : Mesh;
-		private var cube4 : Mesh;
-		private var cube5 : Mesh;
-		
 		private var groundMaterial:ColorMaterial;
+		// Objects
 		private var ground:Mesh;
+		private var lightPicker:StaticLightPicker;
 		
 		// Away3D view instances
 		private var away3dView : View3D;
@@ -49,6 +45,7 @@ package
 		private var lastMouseY : Number = 0;
 		private var mouseDown : Boolean;
 		
+		private var text:TextField;
 		
         public function Main()
         {
@@ -64,6 +61,16 @@ package
 			stage.showDefaultContextMenu = true;
 			stage.stageFocusRect = false;
 			
+			text = new TextField();
+			text.defaultTextFormat = new TextFormat("Verdana", 32, 0xFFFFFF,null,null,null,null,null,"center");
+			
+			text.width = 480;
+			text.height = 700;
+			text.selectable = false;
+			text.mouseEnabled = false;
+			text.text = "Загрузка";
+			addChild(text);
+			
 			var stage3DManager:Stage3DManager = Stage3DManager.getInstance(stage);
 			// Create a new Stage3D proxy to contain the separate views
 			stage3DProxy = stage3DManager.getFreeStage3DProxy();
@@ -74,21 +81,19 @@ package
 		}
 		
 		private function init_starling(event : Stage3DEvent):void{
-			// создание старлинга
-			
 			away3dView = new View3D();
 			away3dView.stage3DProxy = stage3DProxy;
 			away3dView.shareContext = true;
 
-			hoverController = new HoverController(away3dView.camera, null, 45, 30, 1200, 5, 89.999);
+			hoverController = new HoverController(away3dView.camera, null, 180, 0, 150, 0, 60);
 			
 			addChild(away3dView);
-			
-			
+		
+			removeChild(text);
 		   
 			addEventListener(MouseEvent.MOUSE_DOWN, onMouseDown);
 			addEventListener(MouseEvent.MOUSE_UP, onMouseUp);
-		  stage3DProxy.addEventListener(flash.events.Event.ENTER_FRAME, onEnterFrame);
+		    stage3DProxy.addEventListener(Event.ENTER_FRAME, onEnterFrame);
 		 
 			initMaterials();
 			 initLights();
@@ -102,42 +107,13 @@ package
 		 * Initialise the materials
 		 */
 		private function initMaterials() : void {
-			//Create a material for the cubes
-			var cubeBmd:BitmapData = new BitmapData(128, 128, false, 0x0);
-			cubeBmd.perlinNoise(7, 7, 5, 12345, true, true, 7, true);
-			cubeMaterial = new TextureMaterial(new BitmapTexture(cubeBmd));
-			cubeMaterial.gloss = 20;
-			cubeMaterial.ambientColor = 0x808080;
-			cubeMaterial.ambient = 1;
-			
 			groundMaterial = new ColorMaterial(0x63414c);
 			groundMaterial.addMethod(new FogMethod(1000, 3000, 0xe3e1ed));
 			groundMaterial.ambient = 0.25;
 		}
 		
 		private function initObjects() : void {
-			// Build the cubes for view 1
-			var cG:CubeGeometry = new CubeGeometry(300, 300, 300);
-			cube1 = new Mesh(cG, cubeMaterial);
-			cube2 = new Mesh(cG, cubeMaterial);
-			cube3 = new Mesh(cG, cubeMaterial);
-			cube4 = new Mesh(cG, cubeMaterial);
-			cube5 = new Mesh(cG, cubeMaterial);
 			
-			// Arrange them in a circle with one on the center
-			cube1.x = -750; 
-			cube2.z = -750;
-			cube3.x = 750;
-			cube4.z = 750;
-			cube1.y = cube2.y = cube3.y = cube4.y = cube5.y = 150;
-			
-			// Add the cubes to view 1
-			away3dView.scene.addChild(cube1);
-			away3dView.scene.addChild(cube2);
-			away3dView.scene.addChild(cube3);
-			away3dView.scene.addChild(cube4);
-			away3dView.scene.addChild(cube5);
-			/*
 			var _prefabOutput:Milling_Machine = new Milling_Machine();
 			_prefabOutput.scale(3);
 			_prefabOutput.x = -230;
@@ -146,15 +122,15 @@ package
 			
 
 			away3dView.scene.addChild(_prefabOutput);
-			away3dView.camera.lookAt(_prefabOutput.position);
-			*/
+			//away3dView.camera.lookAt(_prefabOutput.position);
+			
 			
 			
 			//create the ground plane
 			
 			ground = new Mesh(new PlaneGeometry(50000, 50000), groundMaterial);
 			ground.geometry.scaleUV(50, 50);
-			//ground.y = -51;
+			ground.y = -51;
 			away3dView.scene.addChild(ground);
 			
 			//away3dView.scene.addChild(new WireframePlane(2500, 2500, 20, 20, 0xbbbb00, 1.5, WireframePlane.ORIENTATION_XZ));
@@ -186,7 +162,7 @@ package
 			
 			//var wireframeAxesGrid:WireframeAxesGrid = new WireframeAxesGrid(10, 1000, 3, 0x0000FF, 0xFF0000, 0x00FF00);
 			//scene.addChild(wireframeAxesGrid);
-			var lightPicker:StaticLightPicker = new StaticLightPicker([sunLight, skyLight]);
+			lightPicker = new StaticLightPicker([sunLight, skyLight]);
 			
 			
 			var filteredShadowMapMethod:SoftShadowMapMethod = new SoftShadowMapMethod(sunLight);
@@ -196,9 +172,6 @@ package
 			
 			groundMaterial.lightPicker = lightPicker;
 			groundMaterial.shadowMethod = filteredShadowMapMethod;
-			
-			cubeMaterial.lightPicker = lightPicker;
-			cubeMaterial.shadowMethod = filteredShadowMapMethod;
 			
 		}
 		/**
@@ -221,7 +194,7 @@ package
 		}
 		
 		
-		private function onEnterFrame(event : flash.events.Event) : void {
+		private function onEnterFrame(event : Event) : void {
 			
 			if (mouseDown) {
 				hoverController.panAngle = 0.3 * (stage.mouseX - lastMouseX) + lastPanAngle;
